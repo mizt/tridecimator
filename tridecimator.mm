@@ -1,9 +1,6 @@
 const bool VERBOSE = false;
 
 #import <Cocoa/Cocoa.h>
-#import <simd/simd.h>
-#import <algorithm>
-
 #import "tridecimator.h"
 
 // stuff to define the mesh
@@ -12,9 +9,12 @@ const bool VERBOSE = false;
 // local optimization
 #import <vcg/complex/algorithms/local_optimization.h>
 #import <vcg/complex/algorithms/local_optimization/tri_edge_collapse_quadric.h>
+
 #import <vcg/complex/algorithms/clean.h>
 
-bool isSameClassName(id a, NSString *b) { return (a&&[NSStringFromClass([a class]) compare:b]==NSOrderedSame); }
+#import <algorithm>
+
+bool isSameClassName(id a, NSString *b) { return (a&&[[a className] compare:b]==NSOrderedSame); }
 bool isNumber(id a) { return isSameClassName(a,@"__NSCFNumber"); }
 
 class MyVertex;
@@ -45,25 +45,25 @@ public:
     inline MyTriEdgeCollapse(const VertexPair &p, int i, vcg::BaseParameterClass *pp) : TECQ(p,i,pp) {}
 };
 
-void tridecimator(std::vector<simd::float3> *v, std::vector<simd::uint3> *f, NSString *params) {
+void tridecimator(std::vector<float> *v, std::vector<unsigned int> *f, NSString *params) {
     
     MyMesh mesh;
-    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,v->size());
+    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,v->size()/3);
     
-    for(int n=0; n<v->size(); n++) {
+    for(int n=0; n<v->size()/3; n++) {
         vit[n].P() = vcg::Point3f(
-            (*v)[n].x,
-            (*v)[n].y,
-            (*v)[n].z
+            (*v)[n*3+0],
+            (*v)[n*3+1],
+            (*v)[n*3+2]
         );
     }
     
-    for(int n=0; n<f->size(); n++) {
+    for(int n=0; n<f->size()/3; n++) {
         vcg::tri::Allocator<MyMesh>::AddFace(
             mesh,
-            &vit[(*f)[n].x],
-            &vit[(*f)[n].y],
-            &vit[(*f)[n].z]
+            &vit[(*f)[n*3+0]],
+            &vit[(*f)[n*3+1]],
+            &vit[(*f)[n*3+2]]
         );
     }
     
@@ -149,22 +149,18 @@ void tridecimator(std::vector<simd::float3> *v, std::vector<simd::uint3> *f, NSS
     for(unsigned int n=0; n<mesh.vert.size(); n++) {
         if(!mesh.vert[n].IsD()) {
             indices[n]=num++;
-            v->push_back(simd::float3{
-                mesh.vert[n].P()[0],
-                mesh.vert[n].P()[1],
-                mesh.vert[n].P()[2]
-            });
+            v->push_back(mesh.vert[n].P()[0]);
+            v->push_back(mesh.vert[n].P()[1]);
+            v->push_back(mesh.vert[n].P()[2]);
         }
     }
     
     for(unsigned int n=0; n<mesh.face.size(); n++) {
         if(!mesh.face[n].IsD()) {
             if(mesh.face[n].VN()==3) {
-                f->push_back(simd::uint3{
-                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(0))],
-                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(1))],
-                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(2))]
-                });
+                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(0))]);
+                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(1))]);
+                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(2))]);
             }
         }
     }
