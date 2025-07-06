@@ -1,6 +1,7 @@
 const bool VERBOSE = false;
 
 #import <Cocoa/Cocoa.h>
+#import <simd/simd.h>
 #import "tridecimator.h"
 
 // stuff to define the mesh
@@ -45,43 +46,29 @@ public:
     inline MyTriEdgeCollapse(const VertexPair &p, int i, vcg::BaseParameterClass *pp) : TECQ(p,i,pp) {}
 };
 
-void tridecimator(std::vector<float> *v, std::vector<unsigned int> *f, NSString *params) {
+void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> *faces, NSString *params) {
     
     MyMesh mesh;
-    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,v->size()/3);
+    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,vercites->size());
     
-    for(int n=0; n<v->size()/3; n++) {
+    for(int n=0; n<vercites->size(); n++) {
         vit[n].P() = vcg::Point3f(
-            (*v)[n*3+0],
-            (*v)[n*3+1],
-            (*v)[n*3+2]
+            (*vercites)[n].x,
+            (*vercites)[n].y,
+            (*vercites)[n].z
         );
     }
     
-    for(int n=0; n<f->size()/3; n++) {
+    for(int n=0; n<faces->size(); n++) {
         vcg::tri::Allocator<MyMesh>::AddFace(
             mesh,
-            &vit[(*f)[n*3+0]],
-            &vit[(*f)[n*3+1]],
-            &vit[(*f)[n*3+2]]
+            &vit[(*faces)[n].x],
+            &vit[(*faces)[n].y],
+            &vit[(*faces)[n].z]
         );
     }
     
     float ratio = 0.5;
-    
-    NSMutableDictionary *settings = [[NSMutableDictionary alloc] init];
-    if(params) {
-        settings = [NSJSONSerialization JSONObjectWithData:[[[NSRegularExpression regularExpressionWithPattern:@"(/\\*[\\s\\S]*?\\*/|//.*)" options:1 error:nil] stringByReplacingMatchesInString:params options:0 range:NSMakeRange(0,params.length) withTemplate:@""] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
-        if(isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
-    }
-    
-    unsigned int TargetFaceNum = (f->size()/3.0)*ratio;
-    
-    if(VERBOSE) printf("mesh loaded %d %d \n",mesh.vn,mesh.fn);
-    
-    double TargetError = std::numeric_limits<double>::max();
-    
-    bool CleaningFlag = true;
     
     vcg::tri::TriEdgeCollapseQuadricParameter qparams;
     qparams.BoundaryQuadricWeight = 0.500000;
@@ -109,6 +96,20 @@ void tridecimator(std::vector<float> *v, std::vector<unsigned int> *f, NSString 
     qparams.UseArea = true;
     qparams.UseVertexWeight = false;
     
+    
+    NSMutableDictionary *settings = [[NSMutableDictionary alloc] init];
+    if(params) {
+        settings = [NSJSONSerialization JSONObjectWithData:[[[NSRegularExpression regularExpressionWithPattern:@"(/\\*[\\s\\S]*?\\*/|//.*)" options:1 error:nil] stringByReplacingMatchesInString:params options:0 range:NSMakeRange(0,params.length) withTemplate:@""] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+        if(isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
+    }
+    
+    unsigned int TargetFaceNum = (faces->size()/3.0)*ratio;
+    
+    if(VERBOSE) printf("mesh loaded %d %d \n",mesh.vn,mesh.fn);
+    
+    double TargetError = std::numeric_limits<double>::max();
+    
+    bool CleaningFlag = true;
     if(CleaningFlag) {
         int dup = vcg::tri::Clean<MyMesh>::RemoveDuplicateVertex(mesh);
         int unref = vcg::tri::Clean<MyMesh>::RemoveUnreferencedVertex(mesh);
@@ -141,26 +142,30 @@ void tridecimator(std::vector<float> *v, std::vector<unsigned int> *f, NSString 
     if(VERBOSE) printf("mesh %d %d Error %g \n",mesh.vn,mesh.fn,DeciSession.currMetric);
     if(VERBOSE) printf("Completed in (%5.3f+%5.3f) sec\n",float(t2-t1)/CLOCKS_PER_SEC,float(t3-t2)/CLOCKS_PER_SEC);
     
-    v->clear();
-    f->clear();
+    vercites->clear();
+    faces->clear();
     
     unsigned int num = 0;
     std::vector<int> indices(mesh.vert.size());
     for(unsigned int n=0; n<mesh.vert.size(); n++) {
         if(!mesh.vert[n].IsD()) {
             indices[n]=num++;
-            v->push_back(mesh.vert[n].P()[0]);
-            v->push_back(mesh.vert[n].P()[1]);
-            v->push_back(mesh.vert[n].P()[2]);
+            vercites->push_back(simd::float3{
+                mesh.vert[n].P()[0],
+                mesh.vert[n].P()[1],
+                mesh.vert[n].P()[2]
+            });
         }
     }
     
     for(unsigned int n=0; n<mesh.face.size(); n++) {
         if(!mesh.face[n].IsD()) {
             if(mesh.face[n].VN()==3) {
-                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(0))]);
-                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(1))]);
-                f->push_back(indices[vcg::tri::Index(mesh,mesh.face[n].V(2))]);
+                faces->push_back(simd::uint3{
+                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(0))],
+                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(1))],
+                    (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(2))]
+                });
             }
         }
     }
