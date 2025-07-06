@@ -17,6 +17,7 @@ const bool VERBOSE = false;
 
 bool isSameClassName(id a, NSString *b) { return (a&&[[a className] compare:b]==NSOrderedSame); }
 bool isNumber(id a) { return isSameClassName(a,@"__NSCFNumber"); }
+bool isBoolean(id a) { return isSameClassName(a,@"__NSCFBoolean"); }
 
 class MyVertex;
 class MyEdge;
@@ -24,7 +25,7 @@ class MyFace;
 
 struct MyUsedTypes: public vcg::UsedTypes<vcg::Use<MyVertex>::AsVertexType,vcg::Use<MyEdge>::AsEdgeType,vcg::Use<MyFace>::AsFaceType> {};
 
-class MyVertex : public vcg::Vertex<MyUsedTypes,vcg::vertex::VFAdj,vcg::vertex::Coord3f,vcg::vertex::Mark,vcg::vertex::Qualityf,vcg::vertex::BitFlags> {
+class MyVertex : public vcg::Vertex<MyUsedTypes, vcg::vertex::VFAdj, vcg::vertex::Coord3f, vcg::vertex::Mark, vcg::vertex::Qualityf, vcg::vertex::BitFlags> {
 private:
     vcg::math::Quadric<double> q;
 public:
@@ -34,14 +35,14 @@ public:
 class MyEdge : public vcg::Edge< MyUsedTypes> {};
 
 typedef vcg::tri::BasicVertexPair<MyVertex> VertexPair;
-class MyFace : public vcg::Face<MyUsedTypes, vcg::face::VFAdj,vcg::face::VertexRef,vcg::face::BitFlags> {};
+class MyFace : public vcg::Face<MyUsedTypes, vcg::face::VFAdj, vcg::face::VertexRef, vcg::face::BitFlags> {};
 
 // the main mesh class
-class MyMesh : public vcg::tri::TriMesh<std::vector<MyVertex>,std::vector<MyFace>> {};
+class MyMesh : public vcg::tri::TriMesh<std::vector<MyVertex>, std::vector<MyFace>> {};
 
-class MyTriEdgeCollapse: public vcg::tri::TriEdgeCollapseQuadric<MyMesh,VertexPair,MyTriEdgeCollapse,vcg::tri::QInfoStandard<MyVertex>> {
+class MyTriEdgeCollapse: public vcg::tri::TriEdgeCollapseQuadric<MyMesh, VertexPair, MyTriEdgeCollapse, vcg::tri::QInfoStandard<MyVertex>> {
 public:
-    typedef vcg::tri::TriEdgeCollapseQuadric<MyMesh,VertexPair,MyTriEdgeCollapse,vcg::tri::QInfoStandard<MyVertex>> TECQ;
+    typedef vcg::tri::TriEdgeCollapseQuadric<MyMesh, VertexPair, MyTriEdgeCollapse, vcg::tri::QInfoStandard<MyVertex>> TECQ;
     typedef MyMesh::VertexType::EdgeType EdgeType;
     inline MyTriEdgeCollapse(const VertexPair &p, int i, vcg::BaseParameterClass *pp) : TECQ(p,i,pp) {}
 };
@@ -101,6 +102,30 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
     if(params) {
         settings = [NSJSONSerialization JSONObjectWithData:[[[NSRegularExpression regularExpressionWithPattern:@"(/\\*[\\s\\S]*?\\*/|//.*)" options:1 error:nil] stringByReplacingMatchesInString:params options:0 range:NSMakeRange(0,params.length) withTemplate:@""] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
         if(isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
+        if(isNumber(settings[@"BoundaryQuadricWeight"])) qparams.BoundaryQuadricWeight = [settings[@"BoundaryQuadricWeight"] floatValue];
+        if(isBoolean(settings[@"FastPreserveBoundary"])) qparams.FastPreserveBoundary = [settings[@"FastPreserveBoundary"] boolValue];
+        if(isBoolean(settings[@"AreaCheck"])) qparams.AreaCheck = [settings[@"AreaCheck"] boolValue];
+        if(isBoolean(settings[@"HardQualityCheck"])) qparams.HardQualityCheck = [settings[@"HardQualityCheck"] boolValue];
+        if(isNumber(settings[@"HardQualityThr"])) qparams.HardQualityThr = [settings[@"HardQualityThr"] floatValue];
+        if(isBoolean(settings[@"HardNormalCheck"])) qparams.HardNormalCheck = [settings[@"HardNormalCheck"] boolValue];
+        if(isBoolean(settings[@"NormalCheck"])) qparams.NormalCheck = [settings[@"NormalCheck"] boolValue];
+        if(isNumber(settings[@"NormalThrRad"])) qparams.NormalThrRad = [settings[@"NormalThrRad"] floatValue];
+        if(isNumber(settings[@"CosineThr"])) qparams.CosineThr = [settings[@"CosineThr"] floatValue];
+        if(isBoolean(settings[@"OptimalPlacement"])) qparams.OptimalPlacement = [settings[@"OptimalPlacement"] boolValue];
+        if(isBoolean(settings[@"SVDPlacement"])) qparams.SVDPlacement = [settings[@"SVDPlacement"] boolValue];
+        if(isBoolean(settings[@"PreserveTopology"])) qparams.PreserveTopology = [settings[@"PreserveTopology"] boolValue];
+        if(isBoolean(settings[@"PreserveBoundary"])) qparams.PreserveBoundary = [settings[@"PreserveBoundary"] boolValue];
+        if(isNumber(settings[@"QuadricEpsilon"])) qparams.QuadricEpsilon = [settings[@"QuadricEpsilon"] floatValue];
+        if(isBoolean(settings[@"QualityCheck"])) qparams.QualityCheck = [settings[@"QualityCheck"] boolValue];
+        if(isNumber(settings[@"QualityThr"])) qparams.QualityThr = [settings[@"QualityThr"] floatValue];
+        if(isBoolean(settings[@"QualityQuadric"])) qparams.QualityQuadric = [settings[@"QualityQuadric"] boolValue];
+        if(isNumber(settings[@"QualityQuadricWeight"])) qparams.QualityQuadricWeight = [settings[@"QualityQuadricWeight"] floatValue];
+        if(isBoolean(settings[@"QualityWeight"])) qparams.QualityWeight = [settings[@"QualityWeight"] boolValue];
+        if(isNumber(settings[@"QualityWeightFactor"])) qparams.QualityWeightFactor = [settings[@"QualityWeightFactor"] floatValue];
+        if(isNumber(settings[@"ScaleFactor"])) qparams.ScaleFactor = [settings[@"ScaleFactor"] floatValue];
+        if(isBoolean(settings[@"ScaleIndependent"])) qparams.ScaleIndependent = [settings[@"ScaleIndependent"] boolValue];
+        if(isBoolean(settings[@"UseArea"])) qparams.UseArea = [settings[@"UseArea"] boolValue];
+        if(isBoolean(settings[@"UseVertexWeight"])) qparams.UseVertexWeight = [settings[@"UseVertexWeight"] boolValue];
     }
     
     unsigned int TargetFaceNum = (faces->size()/3.0)*ratio;
