@@ -17,7 +17,18 @@ int main(int argc, char *argv[]) {
   
   NSString *obj = @"./mesh.obj";
   
-  if(FileManager::exists(obj)&&FileManager::exists(@"./tridecimator.plugin")) {
+  NSString *pluginPath = @"./tridecimator.plugin";
+  CFStringRef pluginFunctionName = (__bridge CFStringRef)(@"tridecimator");
+  
+  int pluginPass = 1;
+  NSString *pluginParams = [NSString stringWithFormat:@"%s",R"(
+{
+  "debug":true,
+  "ratio":0.3,
+}
+  )"];
+  
+  if(FileManager::exists(obj)&&FileManager::exists(pluginPath)) {
     
     NSString *src = [NSString stringWithContentsOfFile:obj encoding:NSUTF8StringEncoding error:nil];
     NSArray *lines = [src componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -45,11 +56,6 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    
-    int pluginPass = 2;
-    NSString *pluginPath = @"./tridecimator.plugin";
-    CFStringRef pluginFunctionName = (__bridge CFStringRef)(@"tridecimator");
-    NSString *pluginParams = @"{\"ratio\":0.75}";
     
     if(pluginPath&&FileManager::exists(pluginPath)) {
       while(pluginPass--) {

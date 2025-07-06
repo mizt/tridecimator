@@ -69,6 +69,8 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
         );
     }
     
+    bool debug = false;
+    
     float ratio = 0.5;
     
     vcg::tri::TriEdgeCollapseQuadricParameter qparams;
@@ -101,6 +103,10 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
     NSMutableDictionary *settings = [[NSMutableDictionary alloc] init];
     if(params) {
         settings = [NSJSONSerialization JSONObjectWithData:[[[NSRegularExpression regularExpressionWithPattern:@"(/\\*[\\s\\S]*?\\*/|//.*)" options:1 error:nil] stringByReplacingMatchesInString:params options:0 range:NSMakeRange(0,params.length) withTemplate:@""] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
+        
+        
+        if(isBoolean(settings[@"debug"])) debug = [settings[@"debug"] boolValue];
+
         if(isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
         if(isNumber(settings[@"BoundaryQuadricWeight"])) qparams.BoundaryQuadricWeight = [settings[@"BoundaryQuadricWeight"] floatValue];
         if(isBoolean(settings[@"FastPreserveBoundary"])) qparams.FastPreserveBoundary = [settings[@"FastPreserveBoundary"] boolValue];
@@ -126,6 +132,11 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
         if(isBoolean(settings[@"ScaleIndependent"])) qparams.ScaleIndependent = [settings[@"ScaleIndependent"] boolValue];
         if(isBoolean(settings[@"UseArea"])) qparams.UseArea = [settings[@"UseArea"] boolValue];
         if(isBoolean(settings[@"UseVertexWeight"])) qparams.UseVertexWeight = [settings[@"UseVertexWeight"] boolValue];
+    }
+    
+    if(debug) {
+        NSLog(@"ratio = %f",ratio);
+        
     }
     
     unsigned int TargetFaceNum = (faces->size()/3.0)*ratio;
