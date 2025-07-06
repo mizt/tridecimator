@@ -136,7 +136,30 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
     
     if(debug) {
         NSLog(@"ratio = %f",ratio);
-        
+        NSLog(@"BoundaryQuadricWeight = %f",qparams.BoundaryQuadricWeight);
+        NSLog(@"FastPreserveBoundary = %s",(qparams.FastPreserveBoundary)?"true":"false");
+        NSLog(@"AreaCheck = %s",(qparams.AreaCheck)?"true":"false");
+        NSLog(@"HardQualityCheck = %s",(qparams.HardQualityCheck)?"true":"false");
+        NSLog(@"HardQualityThr = %f",qparams.HardQualityThr);
+        NSLog(@"HardNormalCheck = %s",(qparams.HardNormalCheck)?"true":"false");
+        NSLog(@"NormalCheck = %s",(qparams.NormalCheck)?"true":"false");
+        NSLog(@"NormalThrRad = %f",qparams.NormalThrRad);
+        NSLog(@"CosineThr = %f",qparams.CosineThr);
+        NSLog(@"OptimalPlacement = %s",(qparams.OptimalPlacement)?"true":"false");
+        NSLog(@"SVDPlacement = %s",(qparams.SVDPlacement)?"true":"false");
+        NSLog(@"PreserveTopology = %s",(qparams.PreserveTopology)?"true":"false");
+        NSLog(@"PreserveBoundary = %s",(qparams.PreserveBoundary)?"true":"false");
+        NSLog(@"QuadricEpsilon = %f",qparams.QuadricEpsilon);
+        NSLog(@"QualityCheck = %s",(qparams.QualityCheck)?"true":"false");
+        NSLog(@"QualityThr = %f",qparams.QualityThr);
+        NSLog(@"QualityQuadric = %s",(qparams.QualityQuadric)?"true":"false");
+        NSLog(@"QualityQuadricWeight = %f",qparams.QualityQuadricWeight);
+        NSLog(@"QualityWeight = %s",(qparams.QualityWeight)?"true":"false");
+        NSLog(@"QualityWeightFactor = %f",qparams.QualityWeightFactor);
+        NSLog(@"ScaleFactor = %f",qparams.ScaleFactor);
+        NSLog(@"ScaleIndependent = %s",(qparams.ScaleIndependent)?"true":"false");
+        NSLog(@"UseArea = %s",(qparams.UseArea)?"true":"false");
+        NSLog(@"UseVertexWeight = %s",(qparams.UseVertexWeight)?"true":"false");
     }
     
     unsigned int TargetFaceNum = (faces->size()/3.0)*ratio;

@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
   int pluginPass = 1;
   NSString *pluginParams = [NSString stringWithFormat:@"%s",R"(
 {
-  "debug":true,
   "ratio":0.3,
 }
   )"];
