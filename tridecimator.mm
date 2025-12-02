@@ -13,9 +13,7 @@ const bool VERBOSE = false;
 
 #import <algorithm>
 
-bool isSameClassName(id a, NSString *b) { return (a&&[[a className] compare:b]==NSOrderedSame); }
-bool isNumber(id a) { return isSameClassName(a,@"__NSCFNumber"); }
-bool isBoolean(id a) { return isSameClassName(a,@"__NSCFBoolean"); }
+#import "TypeCheck.h"
 
 class MyVertex;
 class MyEdge;
@@ -102,34 +100,32 @@ void tridecimator(std::vector<simd::float3> &v, std::vector<simd::uint3> &f, NSS
     if(params) {
         settings = [NSJSONSerialization JSONObjectWithData:[[[NSRegularExpression regularExpressionWithPattern:@"(/\\*[\\s\\S]*?\\*/|//.*)" options:1 error:nil] stringByReplacingMatchesInString:params options:0 range:NSMakeRange(0,params.length) withTemplate:@""] dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableContainers error:nil];
         
-        
-        if(isBoolean(settings[@"debug"])) debug = [settings[@"debug"] boolValue];
-
-        if(isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
-        if(isNumber(settings[@"BoundaryQuadricWeight"])) qparams.BoundaryQuadricWeight = [settings[@"BoundaryQuadricWeight"] floatValue];
-        if(isBoolean(settings[@"FastPreserveBoundary"])) qparams.FastPreserveBoundary = [settings[@"FastPreserveBoundary"] boolValue];
-        if(isBoolean(settings[@"AreaCheck"])) qparams.AreaCheck = [settings[@"AreaCheck"] boolValue];
-        if(isBoolean(settings[@"HardQualityCheck"])) qparams.HardQualityCheck = [settings[@"HardQualityCheck"] boolValue];
-        if(isNumber(settings[@"HardQualityThr"])) qparams.HardQualityThr = [settings[@"HardQualityThr"] floatValue];
-        if(isBoolean(settings[@"HardNormalCheck"])) qparams.HardNormalCheck = [settings[@"HardNormalCheck"] boolValue];
-        if(isBoolean(settings[@"NormalCheck"])) qparams.NormalCheck = [settings[@"NormalCheck"] boolValue];
-        if(isNumber(settings[@"NormalThrRad"])) qparams.NormalThrRad = [settings[@"NormalThrRad"] floatValue];
-        if(isNumber(settings[@"CosineThr"])) qparams.CosineThr = [settings[@"CosineThr"] floatValue];
-        if(isBoolean(settings[@"OptimalPlacement"])) qparams.OptimalPlacement = [settings[@"OptimalPlacement"] boolValue];
-        if(isBoolean(settings[@"SVDPlacement"])) qparams.SVDPlacement = [settings[@"SVDPlacement"] boolValue];
-        if(isBoolean(settings[@"PreserveTopology"])) qparams.PreserveTopology = [settings[@"PreserveTopology"] boolValue];
-        if(isBoolean(settings[@"PreserveBoundary"])) qparams.PreserveBoundary = [settings[@"PreserveBoundary"] boolValue];
-        if(isNumber(settings[@"QuadricEpsilon"])) qparams.QuadricEpsilon = [settings[@"QuadricEpsilon"] floatValue];
-        if(isBoolean(settings[@"QualityCheck"])) qparams.QualityCheck = [settings[@"QualityCheck"] boolValue];
-        if(isNumber(settings[@"QualityThr"])) qparams.QualityThr = [settings[@"QualityThr"] floatValue];
-        if(isBoolean(settings[@"QualityQuadric"])) qparams.QualityQuadric = [settings[@"QualityQuadric"] boolValue];
-        if(isNumber(settings[@"QualityQuadricWeight"])) qparams.QualityQuadricWeight = [settings[@"QualityQuadricWeight"] floatValue];
-        if(isBoolean(settings[@"QualityWeight"])) qparams.QualityWeight = [settings[@"QualityWeight"] boolValue];
-        if(isNumber(settings[@"QualityWeightFactor"])) qparams.QualityWeightFactor = [settings[@"QualityWeightFactor"] floatValue];
-        if(isNumber(settings[@"ScaleFactor"])) qparams.ScaleFactor = [settings[@"ScaleFactor"] floatValue];
-        if(isBoolean(settings[@"ScaleIndependent"])) qparams.ScaleIndependent = [settings[@"ScaleIndependent"] boolValue];
-        if(isBoolean(settings[@"UseArea"])) qparams.UseArea = [settings[@"UseArea"] boolValue];
-        if(isBoolean(settings[@"UseVertexWeight"])) qparams.UseVertexWeight = [settings[@"UseVertexWeight"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"debug"])) debug = [settings[@"debug"] boolValue];
+        if(TypeCheck::isNumber(settings[@"ratio"])) ratio = [settings[@"ratio"] floatValue];
+        if(TypeCheck::isNumber(settings[@"BoundaryQuadricWeight"])) qparams.BoundaryQuadricWeight = [settings[@"BoundaryQuadricWeight"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"FastPreserveBoundary"])) qparams.FastPreserveBoundary = [settings[@"FastPreserveBoundary"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"AreaCheck"])) qparams.AreaCheck = [settings[@"AreaCheck"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"HardQualityCheck"])) qparams.HardQualityCheck = [settings[@"HardQualityCheck"] boolValue];
+        if(TypeCheck::isNumber(settings[@"HardQualityThr"])) qparams.HardQualityThr = [settings[@"HardQualityThr"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"HardNormalCheck"])) qparams.HardNormalCheck = [settings[@"HardNormalCheck"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"NormalCheck"])) qparams.NormalCheck = [settings[@"NormalCheck"] boolValue];
+        if(TypeCheck::isNumber(settings[@"NormalThrRad"])) qparams.NormalThrRad = [settings[@"NormalThrRad"] floatValue];
+        if(TypeCheck::isNumber(settings[@"CosineThr"])) qparams.CosineThr = [settings[@"CosineThr"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"OptimalPlacement"])) qparams.OptimalPlacement = [settings[@"OptimalPlacement"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"SVDPlacement"])) qparams.SVDPlacement = [settings[@"SVDPlacement"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"PreserveTopology"])) qparams.PreserveTopology = [settings[@"PreserveTopology"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"PreserveBoundary"])) qparams.PreserveBoundary = [settings[@"PreserveBoundary"] boolValue];
+        if(TypeCheck::isNumber(settings[@"QuadricEpsilon"])) qparams.QuadricEpsilon = [settings[@"QuadricEpsilon"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"QualityCheck"])) qparams.QualityCheck = [settings[@"QualityCheck"] boolValue];
+        if(TypeCheck::isNumber(settings[@"QualityThr"])) qparams.QualityThr = [settings[@"QualityThr"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"QualityQuadric"])) qparams.QualityQuadric = [settings[@"QualityQuadric"] boolValue];
+        if(TypeCheck::isNumber(settings[@"QualityQuadricWeight"])) qparams.QualityQuadricWeight = [settings[@"QualityQuadricWeight"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"QualityWeight"])) qparams.QualityWeight = [settings[@"QualityWeight"] boolValue];
+        if(TypeCheck::isNumber(settings[@"QualityWeightFactor"])) qparams.QualityWeightFactor = [settings[@"QualityWeightFactor"] floatValue];
+        if(TypeCheck::isNumber(settings[@"ScaleFactor"])) qparams.ScaleFactor = [settings[@"ScaleFactor"] floatValue];
+        if(TypeCheck::isBoolean(settings[@"ScaleIndependent"])) qparams.ScaleIndependent = [settings[@"ScaleIndependent"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"UseArea"])) qparams.UseArea = [settings[@"UseArea"] boolValue];
+        if(TypeCheck::isBoolean(settings[@"UseVertexWeight"])) qparams.UseVertexWeight = [settings[@"UseVertexWeight"] boolValue];
     }
     
     if(debug) {
