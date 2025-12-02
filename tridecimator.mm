@@ -1,7 +1,5 @@
 const bool VERBOSE = false;
 
-#import <Cocoa/Cocoa.h>
-#import <simd/simd.h>
 #import "tridecimator.h"
 
 // stuff to define the mesh
@@ -47,25 +45,25 @@ public:
     inline MyTriEdgeCollapse(const VertexPair &p, int i, vcg::BaseParameterClass *pp) : TECQ(p,i,pp) {}
 };
 
-void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> *faces, NSString *params) {
+void tridecimator(std::vector<simd::float3> &v, std::vector<simd::uint3> &f, NSString *params) {
     
     MyMesh mesh;
-    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,vercites->size());
+    MyMesh::VertexIterator vit = vcg::tri::Allocator<MyMesh>::AddVertices(mesh,v.size());
     
-    for(int n=0; n<vercites->size(); n++) {
+    for(int n=0; n<v.size(); n++) {
         vit[n].P() = vcg::Point3f(
-            (*vercites)[n].x,
-            (*vercites)[n].y,
-            (*vercites)[n].z
+            v[n].x,
+            v[n].y,
+            v[n].z
         );
     }
     
-    for(int n=0; n<faces->size(); n++) {
+    for(int n=0; n<f.size(); n++) {
         vcg::tri::Allocator<MyMesh>::AddFace(
             mesh,
-            &vit[(*faces)[n].x],
-            &vit[(*faces)[n].y],
-            &vit[(*faces)[n].z]
+            &vit[f[n].x],
+            &vit[f[n].y],
+            &vit[f[n].z]
         );
     }
     
@@ -162,7 +160,7 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
         NSLog(@"UseVertexWeight = %s",(qparams.UseVertexWeight)?"true":"false");
     }
     
-    unsigned int TargetFaceNum = (faces->size()/3.0)*ratio;
+    unsigned int TargetFaceNum = (f.size()/3.0)*ratio;
     
     if(VERBOSE) printf("mesh loaded %d %d \n",mesh.vn,mesh.fn);
     
@@ -201,15 +199,15 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
     if(VERBOSE) printf("mesh %d %d Error %g \n",mesh.vn,mesh.fn,DeciSession.currMetric);
     if(VERBOSE) printf("Completed in (%5.3f+%5.3f) sec\n",float(t2-t1)/CLOCKS_PER_SEC,float(t3-t2)/CLOCKS_PER_SEC);
     
-    vercites->clear();
-    faces->clear();
+    v.clear();
+    f.clear();
     
     unsigned int num = 0;
     std::vector<int> indices(mesh.vert.size());
     for(unsigned int n=0; n<mesh.vert.size(); n++) {
         if(!mesh.vert[n].IsD()) {
             indices[n]=num++;
-            vercites->push_back(simd::float3{
+            v.push_back(simd::float3{
                 mesh.vert[n].P()[0],
                 mesh.vert[n].P()[1],
                 mesh.vert[n].P()[2]
@@ -220,7 +218,7 @@ void tridecimator(std::vector<simd::float3> *vercites, std::vector<simd::uint3> 
     for(unsigned int n=0; n<mesh.face.size(); n++) {
         if(!mesh.face[n].IsD()) {
             if(mesh.face[n].VN()==3) {
-                faces->push_back(simd::uint3{
+                f.push_back(simd::uint3{
                     (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(0))],
                     (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(1))],
                     (unsigned int)indices[vcg::tri::Index(mesh,mesh.face[n].V(2))]

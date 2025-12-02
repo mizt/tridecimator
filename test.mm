@@ -1,4 +1,4 @@
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <simd/simd.h>
 #import <vector>
 
@@ -21,11 +21,7 @@ int main(int argc, char *argv[]) {
   CFStringRef pluginFunctionName = (__bridge CFStringRef)(@"tridecimator");
   
   int pluginPass = 1;
-  NSString *pluginParams = [NSString stringWithFormat:@"%s",R"(
-{
-  "ratio":0.3,
-}
-  )"];
+  NSString *pluginParams = @"({\"ratio\":0.3})";
   
   if(FileManager::exists(obj)&&FileManager::exists(pluginPath)) {
     
@@ -76,7 +72,7 @@ int main(int argc, char *argv[]) {
     
     NSMutableString *obj = [NSMutableString stringWithString:@""];
     for(unsigned int n=0; n<v.size(); n++) {
-      [obj appendString:[NSString stringWithFormat:@"v %0.7f %0.7f %0.7f\n",v[n].x,v[n].y,v[n].z]];
+      [obj appendString:[NSString stringWithFormat:@"v %0.4f %0.4f %0.4f\n",v[n].x,v[n].y,v[n].z]];
     }
     for(unsigned int n=0; n<f.size(); n++) {
       [obj appendString:[NSString stringWithFormat:@"f %d %d %d\n",f[n].x+1,f[n].y+1,f[n].z+1]];
