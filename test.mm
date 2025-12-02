@@ -11,7 +11,7 @@ namespace FileManager {
   }
 }
 
-typedef void (*FILTER)(std::vector<simd::float3> *, std::vector<simd::uint3> *, NSString *);
+typedef void (*FILTER)(std::vector<simd::float3> &, std::vector<simd::uint3> &, NSString *);
 
 int main(int argc, char *argv[]) {
   
@@ -54,12 +54,11 @@ int main(int argc, char *argv[]) {
     
     if(pluginPath&&FileManager::exists(pluginPath)) {
       while(pluginPass--) {
-        //NSLog(@"%d",pluginPass);
         CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault,(CFURLRef)[NSURL fileURLWithPath:pluginPath]);
         if(bundle) {
           FILTER filter = (FILTER)CFBundleGetFunctionPointerForName(bundle,pluginFunctionName);
           if(filter) {
-            filter(&v,&f,pluginParams);
+            filter(v,f,pluginParams);
             if(bundle) {
               filter = nullptr;
               CFBundleUnloadExecutable(bundle);
